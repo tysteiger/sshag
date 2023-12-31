@@ -1,0 +1,205 @@
+---------------------------------------------------------------
+-- Complete Setup for Simple Secure Host Authentication Gateway
+---------------------------------------------------------------
+
+# Co-Pilot Instructions:
+# - Use Domain-Driven Design principles.
+# - Implement queue-based processing for background jobs.
+# - Adhere to clean code and best practices in all application files.
+# - Strive for 100% test coverage.
+# - Build the application to scale to multiple organizations' needs for secure, cloud-based user authentication.
+
+-------------------------
+-- composer.json
+-------------------------
+{
+  "name": "tysteiger/simple-secure-host-auth-gateway",
+  "description": "A Laravel-based simple, secure host authentication gateway.",
+  "authors": [
+    {
+      "name": "Tyler Steiger",
+      "email": "tylertheliger@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.3|^8.0",
+    "laravel/framework": "^8.40",
+    "laravel/sanctum": "^2.11",
+    "predis/predis": "^1.1"
+    // Other dependencies...
+  },
+  // Other configurations...
+}
+
+-------------------------
+-- .env
+-------------------------
+APP_NAME="Simple Secure Host Authentication Gateway"
+DB_CONNECTION=mysql
+DB_HOST=<Cloud_SQL_Instance_IP>
+DB_PORT=3306
+DB_DATABASE=<Cloud_SQL_Database_Name>
+DB_USERNAME=<Cloud_SQL_Username>
+DB_PASSWORD=<Cloud_SQL_Password>
+
+REDIS_HOST=<Cloud_Memorystore_Instance_IP>
+REDIS_PASSWORD=null
+REDIS_PORT=<Cloud_Memorystore_Port>
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+// Other environment variables...
+
+-------------------------
+-- README.md
+-------------------------
+# Simple Secure Host Authentication Gateway
+
+This project, "Simple Secure Host Authentication Gateway," is a Laravel-based system designed to provide secure authentication for hosts.
+
+## Author
+- Tyler Steiger
+- Email: tylertheliger@gmail.com
+- GitHub: [tysteiger](https://github.com/tysteiger/sshag)
+
+## Setup and Installation
+- Detailed steps for setting up the project...
+- Instructions for running the project locally...
+- Guidelines for contributing to the project...
+
+-------------------------
+-- Dockerfile
+-------------------------
+FROM php:8.0-fpm
+
+RUN apt-get update && apt-get install -y \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev
+
+RUN pecl install redis && docker-php-ext-enable redis
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www
+
+COPY . /var/www
+
+EXPOSE 9000
+CMD ["php-fpm"]
+
+-------------------------
+-- docker-compose.yml
+-------------------------
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: simple-secure-host-auth-gateway
+    container_name: app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - app-network
+
+  db:
+    image: mysql:5.7
+    container_name: db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: <Cloud_SQL_Database_Name>
+      MYSQL_ROOT_PASSWORD: <Cloud_SQL_Password>
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - app-network
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./path/to/your/nginx/conf:/etc/nginx/conf.d
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+
+-------------------------
+-- .github/workflows/deploy.yml
+-------------------------
+name: Deploy to Google Cloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    - name: Install Composer Dependencies
+      run: composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+
+    - name: Deploy to Google App Engine
+      run: gcloud app deploy app.yaml --project ${{ secrets.GCP_PROJECT }}
+
+-------------------------
+-- app.yaml (for GCP)
+-------------------------
+runtime: php
+env: flex
+
+runtime_config:
+  document_root: public
+
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 3
+
+env_variables:
+  APP_LOG: errorlog
+  APP_KEY: base64:YOUR_APP_KEY
+  STORAGE_DIR: /tmp
+  CACHE_DRIVER: redis
+  SESSION_DRIVER: redis
+  REDIS_HOST: <Cloud_Memorystore_Instance_IP>
+  REDIS_PASSWORD: null
+  REDIS_PORT: <Cloud_Memorystore_Port>
+  DB_CONNECTION: mysql
+  DB_HOST: <Cloud_SQL_Instance_IP>
+  DB_PORT: 3306
+  DB_DATABASE: <Cloud_SQL_Database_Name>
+  DB_USERNAME: <Cloud_SQL_Username>
+  DB_PASSWORD: <Cloud_SQL_Password>
