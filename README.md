@@ -6,6 +6,8 @@ This project, "Simple Secure Host Authentication Gateway," or SSHAG for short, i
 Laravel Sanctum
 https://github.com/laravel/sanctum
 
+
+Laravel Build Status -- not mine ^_^
 [![Build Status](https://github.com/laravel/framework/workflows/tests/badge.svg)](https://github.com/laravel/framework/actions)
 [![Total Downloads](https://img.shields.io/packagist/dt/laravel/framework)](https://packagist.org/packages/laravel/framework)
 [![Latest Stable Version](https://img.shields.io/packagist/v/laravel/framework)](https://packagist.org/packages/laravel/framework)
