@@ -2,14 +2,27 @@ version: '3'
 services:
   app:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: .docker/php-fpm/Dockerfile
     image: simple-secure-host-auth-gateway
     container_name: app
     restart: unless-stopped
     working_dir: /var/www
     volumes:
-      - ./:/var/www
+      - ../:/var/www
+    networks:
+      - app-network
+
+  nginx:
+    build:
+      context: ../
+      dockerfile: .docker/nginx/Dockerfile
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ../:/var/www
     networks:
       - app-network
 
@@ -26,18 +39,6 @@ services:
       - app-network
     volumes:
       - dbdata:/var/lib/mysql
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    restart: unless-stopped
-    ports:
-      - "8000:80"
-    volumes:
-      - ./:/var/www
-      - ./path/to/your/nginx/conf:/etc/nginx/conf.d
-    networks:
-      - app-network
 
 networks:
   app-network:
