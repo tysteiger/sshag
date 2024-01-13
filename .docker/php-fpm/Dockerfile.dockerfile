@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     libpng-dev \
     libjpeg-dev \
-    libfreetype6-dev
+    libfreetype6-dev \
+    bash
 
 # install redis
 RUN pecl install redis && docker-php-ext-enable redis
@@ -21,6 +22,9 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
 # install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install Node.js and npm
+RUN apt-get update && apt-get install -y nodejs npm
 
 # set working directory
 WORKDIR /var/www

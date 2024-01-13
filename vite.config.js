@@ -8,4 +8,13 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        proxy: {
+          '/dev': {
+            target: 'http://localhost:9000',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/dev/, '')
+          }
+        }
+    },
 });

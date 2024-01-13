@@ -1,11 +1,14 @@
-version: '3'
+version: '1'
 services:
   php-fpm:
+    env_file:
+      - ../.env
     build:
       context: ../
       dockerfile: .docker/php-fpm/Dockerfile.dockerfile
-    image: simple-secure-host-auth-gateway
-    container_name: app
+    command: /bin/bash -c "composer install && npm ci && npm run dev && php artisan migrate"
+    image: tylertheliger/sshag-php-fpm
+    container_name: app #important for app-network
     restart: unless-stopped
     working_dir: /var/www
     volumes:
@@ -19,6 +22,7 @@ services:
       dockerfile: .docker/nginx/Dockerfile.dockerfile
       args:
         CACHEBUST: 1
+    image: tylertheliger/sshag-nginx
     container_name: nginx
     restart: unless-stopped
     ports:
@@ -27,20 +31,6 @@ services:
       - ../:/var/www
     networks:
       - app-network
-
-  db:
-    image: mysql:5.7
-    container_name: db
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: <Cloud_SQL_Database_Name>
-      MYSQL_ROOT_PASSWORD: <Cloud_SQL_Password>
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
-    networks:
-      - app-network
-    volumes:
-      - dbdata:/var/lib/mysql
 
 networks:
   app-network:
