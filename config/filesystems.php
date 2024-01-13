@@ -56,6 +56,14 @@ return [
             'throw' => false,
         ],
 
+        'gcs' => [
+            'driver' => 'gcs',
+            'project_id' => env('GCLOUD_PROJECT_ID'),
+            'key_file' => env('GCLOUD_KEY_FILE'), // optional: /path/to/service-account.json
+            'bucket' => env('GCLOUD_STORAGE_BUCKET'),
+            'path_prefix' => env('GCLOUD_STORAGE_PATH_PREFIX'), // optional: /default/path/to/apply/
+            'storage_api_uri' => env('GCLOUD_STORAGE_API_URI'), // optional: see Public URLs below
+        ],
     ],
 
     /*
