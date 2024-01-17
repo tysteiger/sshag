@@ -10,10 +10,10 @@ export default defineConfig({
     ],
     server: {
         proxy: {
-          '/dev': {
-            target: 'http://localhost:9000',
+          '/api': {
+            target: 'http://localhost:8080', // replace with your Laravel app's URL
             changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/dev/, '')
+            rewrite: (path) => path.replace(/^\/api/, '')
           }
         }
     },

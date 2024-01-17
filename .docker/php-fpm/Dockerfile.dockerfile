@@ -1,5 +1,5 @@
 # Build: docker build -t php-fpm -f .docker/php-fpm/Dockerfile.dockerfile .
-FROM php:8.2-fpm
+FROM php:8.2.14-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
