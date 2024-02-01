@@ -1,13 +1,14 @@
 {
-    "name": "laravel/laravel",
+    "name": "tysteiger/sshag",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "The SSHAG is a Laravel-based web application that allows users to manage their SSH keys and access to servers.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
         "php": "^8.1",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
+        "laravel/jetstream": "^4.0",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8"
     },
